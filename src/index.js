@@ -21,15 +21,16 @@ var fs = require('fs');
 var barcode = {
     settings: {
         path: "barcode",
+        width:100,
         barWidth: 1,
         barHeight: 50,
-        moduleSize: 5,
+        moduleSize: 1,
         showHRI: false,
-        addQuietZone: true,
-        marginHRI: 5,
+        addQuietZone: false,
+        marginHRI: 0,
         bgColor: "#FFFFFF",
         color: "#000000",
-        fontSize: 10,
+        fontSize: 12,
         output: "svg",
         posX: 0,
         posY: 0
@@ -978,11 +979,13 @@ var barcode = {
     },
 
     // svg barcode renderer
-    digitToSvgRenderer: function (settings, digit, hri, mw, mh, callback) {
+    digitToSvgRenderer: function (settings, digit, hri, callback, mwi, mhi) {
         var lines = digit.length;
         var columns = digit[0].length;
 
-        var width = mw * columns;
+        var width = settings.width;
+        var mw = width/columns;
+        var mh = mhi;
         var height = mh * lines;
         if (settings.showHRI) {
             var fontSize = barcode.intval(settings.fontSize);
@@ -990,7 +993,7 @@ var barcode = {
         }
 
         // svg header
-        var svg = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="' + width + '" height="' + height + '">';
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 ' + width + ' ' + height + '" >';
 
         // background
         svg += '<rect width="' + width + '" height="' + height + '" x="0" y="0" fill="' + settings.bgColor + '" />';
@@ -1036,12 +1039,12 @@ var barcode = {
     digitToSvg: function (settings, digit, hri, callback) {
         var w = barcode.intval(settings.barWidth);
         var h = barcode.intval(settings.barHeight);
-        this.digitToSvgRenderer(settings, this.bitStringTo2DArray(digit), hri, w, h, callback);
+        this.digitToSvgRenderer(settings, this.bitStringTo2DArray(digit), hri, callback, w, h);
     },
     // svg 2D barcode renderer
     digitToSvg2D: function (settings, digit, hri, callback) {
         var s = barcode.intval(settings.moduleSize);
-        this.digitToSvgRenderer(settings, digit, hri, s, s, callback);
+        this.digitToSvgRenderer(settings, digit, hri, callback, s, s);
     },
     write: function (settings, data, type, callback) {
         fs.writeFile(settings.path + '.' + type, data, null, function (err) {
