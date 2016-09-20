@@ -26,7 +26,7 @@ Generate 1D and 2D barcodes
 
 ## Installing
 
-	npm install barcode
+	npm install barcode-2-svg
 
 ## Usage
 
