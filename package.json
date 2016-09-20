@@ -1,6 +1,6 @@
 {
   "name": "barcode-2-svg",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Create svg file on server side without canvas",
   "main": "src/index.js",
   "scripts": {
@@ -15,8 +15,7 @@
     "svg",
     "node",
     "node.js",
-    "server",
-    "svg"
+    "server"
   ],
   "author": "D.Bilukha <siniidrozd@gmail.com> (http://fozzy.ua/)",
   "license": "MIT",
