@@ -21,6 +21,7 @@ var fs = require('fs');
 var barcode = {
     settings: {
         path: "barcode",
+        toFile:true,
         width:100,
         barWidth: 1,
         barHeight: 50,
@@ -28,7 +29,7 @@ var barcode = {
         showHRI: false,
         addQuietZone: false,
         marginHRI: 0,
-        bgColor: "#FFFFFF",
+        bgColor: "transparent",
         color: "#000000",
         fontSize: 12,
         output: "svg",
@@ -991,15 +992,20 @@ var barcode = {
             var fontSize = barcode.intval(settings.fontSize);
             height += barcode.intval(settings.marginHRI) + fontSize;
         }
-
-        // svg header
-        var svg = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 ' + width + ' ' + height + '" >';
-
-        // background
-        svg += '<rect width="' + width + '" height="' + height + '" x="0" y="0" fill="' + settings.bgColor + '" />';
+        var svg ='<g>';
+        if(settings.toFile){
+            // svg header
+            svg = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 ' + width + ' ' + height + '" >';
+        }
+        if(settings.bgColor !== 'transparent'){
+            // background
+            svg += '<rect width="' + width + '" height="' + height + '" x="0" y="0" fill="' + settings.bgColor + '" />';
+        }
 
         var bar1 = '<rect width="&W" height="' + mh + '" x="&X" y="&Y" fill="' + settings.color + '" />';
-
+        if(settings.color === "#000000"){
+            bar1 = '<rect width="&W" height="' + mh + '" x="&X" y="&Y"/>';
+        }
         var len, current;
         for (var y = 0; y < lines; y++) {
             len = 0;
@@ -1009,14 +1015,18 @@ var barcode = {
                     len++;
                 } else {
                     if (current == '1') {
-                        svg += bar1.replace("&W", len * mw).replace("&X", (x - len) * mw).replace("&Y", y * mh);
+                        svg += bar1.replace("&W", (len * mw).toFixed(1))
+                            .replace("&X", ((x - len) * mw).toFixed(1))
+                            .replace("&Y", y * mh);
                     }
                     current = digit[y][x];
                     len = 1;
                 }
             }
             if ((len > 0) && (current == '1')) {
-                svg += bar1.replace("&W", len * mw).replace("&X", (columns - len) * mw).replace("&Y", y * mh);
+                svg += bar1.replace("&W", (len * mw).toFixed(1))
+                    .replace("&X", ((columns - len) * mw).toFixed(1))
+                    .replace("&Y", (y * mh).toFixed(1));
             }
         }
 
@@ -1026,25 +1036,24 @@ var barcode = {
             svg += '</g>';
         }
         // svg footer
-        svg += '</svg>';
-
-        // create a dom object, flush container and add object to the container
-        //var object = document.createElement('object');
-        //object.setAttribute('type', 'image/svg+xml');
-        //object.setAttribute('data', 'data:image/svg+xml,'+ svg);
-        this.write(settings, svg, 'svg', callback);
-        //this.resize($container, width).append(object);
+        if(settings.toFile) {
+            svg += '</svg>';
+            return this.write(settings, svg, 'svg', callback);
+        }else{
+            svg += '</g>';
+            return svg;
+        }
     },
     // svg 1D barcode renderer
     digitToSvg: function (settings, digit, hri, callback) {
         var w = barcode.intval(settings.barWidth);
         var h = barcode.intval(settings.barHeight);
-        this.digitToSvgRenderer(settings, this.bitStringTo2DArray(digit), hri, callback, w, h);
+        return this.digitToSvgRenderer(settings, this.bitStringTo2DArray(digit), hri, callback, w, h);
     },
     // svg 2D barcode renderer
     digitToSvg2D: function (settings, digit, hri, callback) {
         var s = barcode.intval(settings.moduleSize);
-        this.digitToSvgRenderer(settings, digit, hri, callback, s, s);
+        return this.digitToSvgRenderer(settings, digit, hri, callback, s, s);
     },
     write: function (settings, data, type, callback) {
         fs.writeFile(settings.path + '.' + type, data, null, function (err) {
@@ -1052,10 +1061,13 @@ var barcode = {
             if (err) {
                 console.log(err);
                 result = false;
+                return result;
             }
             console.log('===svg barcode file create==');
             if (typeof callback === 'function') {
                 callback(result);
+            }else{
+                return true;
             }
         });
     }
@@ -1135,7 +1147,10 @@ module.exports = function (datas, type, settings, callback) {
     if (!b2d && settings.addQuietZone) digit = "0000000000" + digit + "0000000000";
 
     var fname = 'digitTo' + settings.output.charAt(0).toUpperCase() + settings.output.substr(1) + (b2d ? '2D' : '');
+    //if (typeof(barcode[fname]) == 'function' && settings.toFile === false) {
+    //    return barcode[fname](settings, digit, hri, callback);
+    //}else
     if (typeof(barcode[fname]) == 'function') {
-        barcode[fname](settings, digit, hri, callback);
+        return barcode[fname](settings, digit, hri, callback);
     }
 };
