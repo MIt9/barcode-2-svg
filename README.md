@@ -46,7 +46,7 @@ type (string)
 - int25 (interleaved 2 of 5)
 
 settings (object):
-
+ - toFile (bool) -write to file (default: true);
  - barHeight (int) -height of svg (default: 30);
  - width (int) -width of svg (default: 100);
  - bgColor (text) -background color css like (default: 'transparent');
