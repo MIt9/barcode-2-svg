@@ -1,6 +1,7 @@
 # barcode-2-svg
 
-Create svg file on server side without canvas
+Create svg file on server/browser side without canvas
+Work well in all modern browser
 it's modificated version of [JQUERY PLUGIN : BARCODE](http://barcode-coder.com/en/barcode-jquery-plugin-201.html)
 Generate 1D barcodes
 
@@ -14,6 +15,7 @@ Generate 1D barcodes
 ## Requirements
 
 - node >= 0.10.0
+- browser != IE
 
 ## Installing
 
@@ -26,11 +28,10 @@ required ones.
 
 ```javascript
 var barcode = require('barcode-2-svg');
-//to file
-var code39 = barcode("9234567890128", "ean13",
-{width:'50', barWidth:1, barHeight:50});
+//to file work only on server side
+var code39 = barcode("9234567890128", "code39", {width:50, barWidth:1, barHeight:50, toFile:true});
 //return barcode like text
-var code13Text = barcode("9234567890128", "ean13",{width:'50', barWidth:1, barHeight:50, toFile:false})
+var code13Text = barcode("9234567890128", "ean13", {width:50, barWidth:1, barHeight:50});
 console.log(code13Text);
 ```
 type (string)
@@ -46,7 +47,7 @@ type (string)
 - int25 (interleaved 2 of 5)
 
 settings (object):
- - toFile (bool) -write to file (default: true);
+ - toFile (bool) -write to file (default: false);
  - barHeight (int) -height of svg (default: 30);
  - width (int) -width of svg (default: 100);
  - bgColor (text) -background color css like (default: 'transparent');

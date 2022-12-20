@@ -17,11 +17,11 @@
  *  dual licence :  http://www.cecill.info/licences/Licence_CeCILL_V2-fr.html
  *                  http://www.gnu.org/licenses/gpl.html
  */
-var fs = require('fs');
+
 var barcode = {
     settings: {
         path: "barcode",
-        toFile:true,
+        toFile:false,
         width:100,
         barWidth: 1,
         barHeight: 50,
@@ -38,12 +38,12 @@ var barcode = {
     },
     intval: function (val) {
         var type = typeof( val );
-        if (type == 'string') {
+        if (type === 'string') {
             val = val.replace(/[^0-9-.]/g, "");
             val = parseInt(val * 1, 10);
             return isNaN(val) || !isFinite(val) ? 0 : val;
         }
-        return type == 'number' && isFinite(val) ? Math.floor(val) : 0;
+        return type === 'number' && isFinite(val) ? Math.floor(val) : 0;
     },
     i25: { // std25 int25
         encoding: ["NNWWN", "WNNNW", "NWNNW", "WWNNN", "NNWNW", "WNWNN", "NWWNN", "NNNWW", "WNNWN", "NWNWN"],
@@ -992,11 +992,8 @@ var barcode = {
             var fontSize = barcode.intval(settings.fontSize);
             height += barcode.intval(settings.marginHRI) + fontSize;
         }
-        var svg ='<g>';
-        if(settings.toFile){
-            // svg header
-            svg = '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 ' + width + ' ' + height + '" >';
-        }
+        var svg ='<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="' + width +'px" height="' + height +'px" viewBox="0 0 ' + width + ' ' + height + '" >';
+
         if(settings.bgColor !== 'transparent'){
             // background
             svg += '<rect width="' + width + '" height="' + height + '" x="0" y="0" fill="' + settings.bgColor + '" />';
@@ -1035,12 +1032,11 @@ var barcode = {
             svg += '<text y="' + (height - Math.floor(fontSize / 2)) + '" text-anchor="middle" style="font-family: Arial; font-size: ' + fontSize + 'px;" fill="' + settings.color + '">' + hri + '</text>';
             svg += '</g>';
         }
+        svg += '</svg>';
         // svg footer
         if(settings.toFile) {
-            svg += '</svg>';
             return this.write(settings, svg, 'svg', callback);
         }else{
-            svg += '</g>';
             return svg;
         }
     },
@@ -1056,20 +1052,25 @@ var barcode = {
         return this.digitToSvgRenderer(settings, digit, hri, callback, s, s);
     },
     write: function (settings, data, type, callback) {
-        fs.writeFile(settings.path + '.' + type, data, null, function (err) {
-            var result = true;
-            if (err) {
-                console.log(err);
-                result = false;
-                return result;
-            }
-            console.log('===svg barcode file create==');
-            if (typeof callback === 'function') {
-                callback(result);
-            }else{
-                return true;
-            }
-        });
+        try {
+            var fs = require('fs');
+            fs.writeFile(settings.path + '.' + type, data, null, function (err) {
+                var result = true;
+                if (err) {
+                    console.log(err);
+                    result = false;
+                    return result;
+                }
+                console.log('===svg barcode file create==');
+                if (typeof callback === 'function') {
+                    callback(result);
+                }else{
+                    return true;
+                }
+            });
+        } catch (err) {
+            console.error(err);
+        }
     }
 
 };
@@ -1141,7 +1142,7 @@ module.exports = function (datas, type, settings, callback) {
             b2d = true;
             break;
     }
-    if (digit.length == 0) return false;
+    if (digit.length === 0) return false;
 
     // Quiet Zone
     if (!b2d && settings.addQuietZone) digit = "0000000000" + digit + "0000000000";
