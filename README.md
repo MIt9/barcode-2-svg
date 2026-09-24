@@ -1,5 +1,11 @@
 # barcode-2-svg
 
+> **Server-side barcode to SVG without canvas** — generate 1D barcodes (Code39, Code128, EAN-13, etc.) as SVG strings or files, no canvas required. Works in Node and modern browsers.
+
+[![npm](https://img.shields.io/npm/v/barcode-2-svg.svg)](https://www.npmjs.com/package/barcode-2-svg)
+[![node](https://img.shields.io/node/v/barcode-2-svg.svg)](https://nodejs.org)
+[![license](https://img.shields.io/npm/l/barcode-2-svg.svg)](LICENSE)
+
 Create svg file on server/browser side without canvas
 Work well in all modern browser
 it's modificated version of [JQUERY PLUGIN : BARCODE](http://barcode-coder.com/en/barcode-jquery-plugin-201.html)
@@ -14,12 +20,29 @@ Generate 1D barcodes
 
 ## Requirements
 
-- node >= 0.10.0
-- browser != IE
+- Node >= 18
+- Modern browsers (no IE)
 
-## Installing
+## Install
 
-	npm install barcode-2-svg
+```bash
+npm install barcode-2-svg
+# or
+yarn add barcode-2-svg
+```
+
+## Quick Start
+
+```javascript
+import barcode from 'barcode-2-svg';
+
+// SVG string (server or browser)
+const svg = barcode("9234567890128", "ean13", {width: 200, barWidth: 2, barHeight: 80});
+console.log(svg); // <svg>...</svg>
+
+// Write to file (Node only)
+barcode("9234567890128", "code39", {width: 200, barWidth: 2, barHeight: 80, toFile: true});
+```
 
 ## Usage
 
